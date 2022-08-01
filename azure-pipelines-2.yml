@@ -10,20 +10,15 @@ resources:
       trigger: true
 
 
-stages: 
-  - stage: Run
-    displayName: Run Terraform scripts
-    jobs: 
-    - job:
-      displayName: Run Terraform scripts
-      pool: 
-        name: Default
-        demands: agent.os -equals Linux
-        steps:
-        - task: Bash@3
-          displayName: Terraform Scripts
-          inputs:
-            targetType: inline
-            script: |
-                    terraform init
-                    terraform apply
+
+pool: 
+  name: Default
+  demands: agent.os -equals Linux
+  steps:
+  - task: Bash@3
+    displayName: Terraform Scripts
+    inputs:
+      targetType: inline
+      script: |
+              terraform init
+              terraform apply
