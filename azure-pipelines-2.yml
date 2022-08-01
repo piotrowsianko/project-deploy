@@ -14,15 +14,15 @@ stages:
   - stage: Build
     jobs:
     - job: Build
-      displayName: Build and Push Docker Image
+      displayName: Start terraform script from main.tf
       pool: 
         name: Default
         demands: agent.os -equals Linux
-        steps:
-        - task: Bash@3
-          displayName: Terraform Scripts
-          inputs:
-            targetType: inline
-            script: |
-                    terraform init
-                    terraform apply
+      steps:
+      - task: Bash@3
+        displayName: Terraform Scripts
+        inputs:
+          targetType: inline
+          script: |
+                  terraform init
+                  terraform apply
