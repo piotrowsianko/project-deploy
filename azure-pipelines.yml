@@ -23,6 +23,7 @@ stages:
     - task: Bash@3
       displayName: Apt Update and Install of prerequisites
       inputs:
+        targetType: inline
         script: |
                 sudo apt-get update
                 sudo apt-get upgrade
