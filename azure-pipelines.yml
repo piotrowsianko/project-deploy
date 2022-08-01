@@ -1,6 +1,7 @@
 
 trigger:
-- master
+#- master
+- none
 
 resources:
 - repo: self
