@@ -24,5 +24,6 @@ stages:
         inputs:
           targetType: inline
           script: |
+                  pwd
                   terraform init
                   terraform apply
