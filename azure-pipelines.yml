@@ -1,4 +1,4 @@
-pool: New Agent self-hosted
+pool: MyPool
 
 trigger:
 - master
