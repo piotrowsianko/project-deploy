@@ -1,3 +1,5 @@
+pool: New Agent self-hosted
+
 trigger:
 - master
 
