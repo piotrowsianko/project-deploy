@@ -58,6 +58,7 @@ stages:
                   terraform init -reconfigure
                   terraform validate
                   terraform apply -auto-approve
+                  az login 
                   az keyvault secret set \
                   --name "ecr-repository-url" \
                   --value "$(terraform output -raw repository_url)" \
