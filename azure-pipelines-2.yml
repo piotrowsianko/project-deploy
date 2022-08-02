@@ -46,4 +46,4 @@ stages:
                   export AWS_REGION="us-east-1"
                   cd terraform
                   terraform init
-                  terraform apply
+                  terraform apply -auto-approve
