@@ -48,18 +48,13 @@ stages:
                   cd terraform
                   terraform init
                   terraform apply -auto-approve
-      - task: Bash@3
-        displayName: Exporting AWS ECR urls to KV
-        inputs:
-          targetType: inline
-          script: |
-                  #! /bin/bash
                   az keyvault secret set \
-                  --name "ecr_repository_url"
-                  --value "$(repository_url)"
+                  --name "ecr_repository_url" \
+                  --value "$(repository_url)" \
                   --vault-name key-vault-gl
                   az keyvault secret set \
-                  --name "ecr_repository_id"
-                  --value "$(registry_id)"
+                  --name "ecr_repository_id" \
+                  --value "$(registry_id)" \
                   --vault-name key-vault-gl
                   export -p
+
