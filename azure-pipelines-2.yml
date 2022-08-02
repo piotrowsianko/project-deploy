@@ -3,11 +3,11 @@ name: Terraform_setup.yml
 trigger: none
 
 #This pipeline will be triggerred by another pipeline
-resources:
-  pipelines:
-    - pipeline: Terraform_scripts
-      source: Continous Integration (Building application and pushing to dockerhub)
-      trigger: true
+#resources:
+  #pipelines:
+    #- pipeline: Terraform_scripts
+      #source: Continous Integration (Building application and pushing to dockerhub)
+      #trigger: true
 
 
 stages:
