@@ -16,14 +16,16 @@ stages:
     - job: Build
       displayName: Start terraform script from main.tf
       pool: 
-        name: Default
-        demands: agent.os -equals Linux
+        #name: Default
+        #demands: agent.os -equals Linux
+        vmImage: ubuntu-latest
       steps:
       - task: Bash@3
         displayName: Terraform Scripts
         inputs:
           targetType: inline
           script: |
-                  pwd
+                  #! /bin/bash
+                  cd ~/Project/
                   terraform init
                   terraform apply
