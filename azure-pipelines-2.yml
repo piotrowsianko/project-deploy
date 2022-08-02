@@ -35,6 +35,6 @@ stages:
           targetType: inline
           script: |
                   #! /bin/bash
-                  cd Projekt
+                  cd terraform
                   terraform init
                   terraform apply
