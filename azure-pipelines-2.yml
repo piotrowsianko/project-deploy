@@ -20,14 +20,6 @@ stages:
         #demands: agent.os -equals Linux
         vmImage: ubuntu-latest
       steps:
-      - task: Bash@3
-        displayName: Print directory
-        inputs:
-          targetType: inline
-          script: |
-                  #! /bin/bash
-                  pwd
-                  ls -a
       - task: AzureKeyVault@2
         displayName: Connecting to Azure Key Vault
         inputs:
@@ -46,15 +38,16 @@ stages:
                   export AWS_REGION="us-east-1"
                   export Azure_subscription_id
                   cd terraform
-                  terraform init
+                  terraform init -reconfigure
+                  terraform validate
                   terraform apply -auto-approve
                   az keyvault secret set \
                   --name "ecr_repository_url" \
-                  --value "$(repository_url)" \
+                  --value "$(terraform ouput -raw repository_url)" \
                   --vault-name key-vault-gl
                   az keyvault secret set \
-                  --name "ecr_repository_id" \
-                  --value "$(registry_id)" \
+                  --name "ecr_registry_id" \
+                  --value "$(terraform ouput -raw registry_id)" \
                   --vault-name key-vault-gl
                   export -p
 
