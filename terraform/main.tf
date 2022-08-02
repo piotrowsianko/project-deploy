@@ -10,6 +10,14 @@ provider "aws" {
 	region = "us-east-1"
 	}
 
+provider "azurerm"{
+	features {}
+ 
+  # Configure a specific Subscription ID (optional)
+  subscription_id = "dfcefdc0-4ded-42a0-933b-100fbb1721ed"
+
+}
+
 resource "aws_ecr_repository" "api_ecr" {
 	name = "repository-for-api"
 	image_tag_mutability = "MUTABLE"
