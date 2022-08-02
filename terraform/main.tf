@@ -15,9 +15,9 @@ resource "aws_ecr_repository" "api_ecr" {
 
 output "registry_id" {
 	description = "The account ID of the registry holding the repository"
-	value = aws_ecr_repository.repository.registry_id
+	value = api_ecr.repository.registry_id
 }
 output "repository_url" {
 	description = "The URL of the repository"
-	value = aws_ecr_repository.repository.repository_url
+	value = api_ecr.repository.repository_url
 }
