@@ -21,11 +21,20 @@ stages:
         vmImage: ubuntu-latest
       steps:
       - task: Bash@3
+        displayName: Print directory
+        inputs:
+          targetType: inline
+          script: |
+                  #! /bin/bash
+                  pwd
+                  ls -a
+
+      - task: Bash@3
         displayName: Terraform Scripts
         inputs:
           targetType: inline
           script: |
                   #! /bin/bash
-                  cd Project
+                  cd Projekt
                   terraform init
                   terraform apply
