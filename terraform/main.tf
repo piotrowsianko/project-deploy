@@ -9,6 +9,7 @@ terraform {
 provider "aws" {
 	region = "us-east-1"
 	}
+
 resource "aws_ecr_repository" "api_ecr" {
 	name = "repository-for-api"
 	image_tag_mutability = "MUTABLE"
@@ -16,7 +17,6 @@ resource "aws_ecr_repository" "api_ecr" {
     	scan_on_push = false
   }
 }
-	}
 
 output "registry_id" {
 	description = "The account ID of the registry holding the repository"
