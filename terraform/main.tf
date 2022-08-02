@@ -11,13 +11,18 @@ provider "aws" {
 	}
 resource "aws_ecr_repository" "api_ecr" {
 	name = "repository-for-api"
+	image_tag_mutability = "MUTABLE"
+  	image_scanning_configuration {
+    	scan_on_push = false
+  }
+}
 	}
 
 output "registry_id" {
 	description = "The account ID of the registry holding the repository"
-	value = api_ecr.repository.registry_id
+	value = aws_ecr_repository.api_ecr.registry_id
 }
 output "repository_url" {
 	description = "The URL of the repository"
-	value = api_ecr.repository.repository_url
+	value = aws_ecr_repository.api_ecr.repository_url
 }
