@@ -27,6 +27,24 @@ stages:
           KeyVaultName: 'key-vault-gl'
           SecretsFilter: '*'
           RunAsPreJob: true
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+                      # Propagate pipeline Service Principal as Terraform variables
+                      $env:ARM_CLIENT_ID       ??= $env:servicePrincipalId
+                      $env:ARM_CLIENT_SECRET   ??= $env:servicePrincipalKey
+                      $env:ARM_TENANT_ID       ??= $env:tenantId
+                      # Propagate from Azure CLI context
+                      $env:ARM_TENANT_ID       ??= $(az account show --query tenantId -o tsv)
+                      $env:ARM_SUBSCRIPTION_ID ??= $(az account show --query id -o tsv)              
+                      # Put Terraform commands after this line
+          addSpnToEnvironment: true
+          useGlobalConfig: true
+          failOnStandardError: true
+          powerShellIgnoreLASTEXITCODE: false
       - task: Bash@3
         displayName: Terraform Scripts
         inputs:
@@ -36,7 +54,6 @@ stages:
                   export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
                   export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
                   export AWS_REGION="us-east-1"
-                  export Azure_subscription_id
                   cd terraform
                   terraform init -reconfigure
                   terraform validate
