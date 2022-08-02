@@ -42,11 +42,11 @@ stages:
                   terraform validate
                   terraform apply -auto-approve
                   az keyvault secret set \
-                  --name "ecr_repository_url" \
+                  --name "ecr-repository-url" \
                   --value "$(terraform output -raw repository_url)" \
                   --vault-name key-vault-gl
                   az keyvault secret set \
-                  --name "ecr_registry_id" \
+                  --name "ecr-registry-id" \
                   --value "$(terraform output -raw registry_id)" \
                   --vault-name key-vault-gl
                   export -p
