@@ -41,7 +41,7 @@ stages:
                   export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
                   export AWS_REGION="us-east-1"
                   cd terraform
-                  terraform init -reconfigure
+                  terraform init -reconfigure -upgrade
                   terraform validate
                   terraform apply -auto-approve 
                   az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
