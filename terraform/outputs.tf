@@ -1,8 +1,8 @@
-output "registry_id" {
+output "PROD_REGISTRY_ID" {
 	description = "The account ID of the registry holding the repository"
-	value = aws_ecr_repository.api_ecr.registry_id
+	value = aws_ecr_repository.prod_api_ecr.registry_id
 }
-output "repository_url" {
+output "PROD_REPO_URL" {
 	description = "The URL of the repository"
-	value = aws_ecr_repository.api_ecr.repository_url
+	value = aws_ecr_repository.prod_api_ecr.repository_url
 }
