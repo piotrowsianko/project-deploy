@@ -22,6 +22,7 @@ stages:
       variables:
       - group: "ACCESS-VARIABLES"
       steps:
+      - checkout: self
       - task: AzureKeyVault@2
         displayName: Connecting to Azure Key Vault
         inputs:
