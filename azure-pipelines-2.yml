@@ -41,4 +41,4 @@ stages:
                   terraform init -reconfigure
                   terraform validate
                   terraform apply -auto-approve 
-                  az pipeline variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw repository_url)
+                  az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw repository_url)
