@@ -19,6 +19,8 @@ stages:
         #name: Default
         #demands: agent.os -equals Linux
         vmImage: ubuntu-latest
+      variables:
+      - group: "ACCESS-VARIABLES"
       steps:
       - task: AzureKeyVault@2
         displayName: Connecting to Azure Key Vault
@@ -27,24 +29,6 @@ stages:
           KeyVaultName: 'key-vault-gl'
           SecretsFilter: '*'
           RunAsPreJob: true
-      - task: AzureCLI@2
-        inputs:
-          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
-          scriptType: 'pscore'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-                      # Propagate pipeline Service Principal as Terraform variables
-                      $env:ARM_CLIENT_ID       ??= $env:servicePrincipalId
-                      $env:ARM_CLIENT_SECRET   ??= $env:servicePrincipalKey
-                      $env:ARM_TENANT_ID       ??= $env:tenantId
-                      # Propagate from Azure CLI context
-                      $env:ARM_TENANT_ID       ??= $(az account show --query tenantId -o tsv)
-                      $env:ARM_SUBSCRIPTION_ID ??= $(az account show --query id -o tsv)              
-                      # Put Terraform commands after this line
-          addSpnToEnvironment: true
-          useGlobalConfig: true
-          failOnStandardError: true
-          powerShellIgnoreLASTEXITCODE: false
       - task: Bash@3
         displayName: Terraform Init
         inputs:
@@ -53,22 +37,8 @@ stages:
                   export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
                   export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
                   export AWS_REGION="us-east-1"
-                  export ARM_SUBSCRIPTION_ID=$(Azure-subscription-id)
-                  export ARM_TENANT_ID=$(tenant-id-service-principal)
-                  export ARM_CLIENT_ID=$(appId)
-                  export ARM_CLIENT_SECRET=""
                   cd terraform
                   terraform init -reconfigure
                   terraform validate
                   terraform apply -auto-approve 
-                  az account show
-                  az login
-                  az keyvault secret set \
-                  --name "ecr-repository-url" \
-                  --value "$(terraform output -raw repository_url)" \
-                  --vault-name key-vault-gl
-                  az keyvault secret set \
-                  --name "ecr-registry-id" \
-                  --value "$(terraform output -raw registry_id)" \
-                  --vault-name key-vault-gl
-                  export -p
+                  az pipeline variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw repository_url)
