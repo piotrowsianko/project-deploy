@@ -6,3 +6,11 @@ output "PROD_REPO_URL" {
 	description = "The URL of the repository"
 	value = aws_ecr_repository.prod_api_ecr.repository_url
 }
+output "PROD_INSTANCE_URL" {
+	description = "URL of the EC2 Instance for production"
+	value = aws_instance.app_prod.public_ip
+}
+output "PROD_INSTANCE_ARN" {
+	description = "ARN of the EC2 Instance for production"
+	value = aws_instance.app_prod.arn
+}
