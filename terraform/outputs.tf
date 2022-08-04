@@ -14,3 +14,7 @@ output "PROD_INSTANCE_ARN" {
 	description = "ARN of the EC2 Instance for production"
 	value = aws_instance.app_prod.arn
 }
+output "PROD_INSTANCE_ID" {
+	description = "ID of the EC2 Instance for production"
+	value = aws_instance.app_prod.id
+}
