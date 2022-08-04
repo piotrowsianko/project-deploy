@@ -7,15 +7,16 @@ resources:
 - repo: self
 
 variables:
-  tag: '$(Build.BuildId)'
+- group: "ACCESS-VARIABLES"
+
 
 stages:
 
 - stage: Build
   displayName: Build image
   jobs:
-  - job: Build
-    displayName: Build and Push Docker Image
+  - job: Job_1
+    displayName: Build image to ECR
     pool:
       #name: Default
       #demands: agent.os -equals Linux
