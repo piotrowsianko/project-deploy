@@ -21,6 +21,13 @@ stages:
       #demands: agent.os -equals Linux
       vmImage: ubuntu-latest
     steps:
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+          KeyVaultName: 'key-vault-gl'
+          SecretsFilter: '*'
+          RunAsPreJob: true
     - task: Bash@3
       displayName: Apt Update and Install of prerequisites
       inputs:
@@ -28,8 +35,26 @@ stages:
         script: |
                 sudo apt-get -y update
                 sudo apt-get -y upgrade
-                
+    - task: Bash@3
+      displayName: Authentication to AWS
+      inputs:
+        targetType: 'inline'
+        script: |
+          aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+          aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+          aws configure set default.region us-east-1
 
+    - task: Bash@3
+      displayName: Push application image to ECR
+      inputs:
+        targetType: 'inline'
+        script: |
+          #! /bin/bash
+          docker build -t repository-for-api .
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
+          docker tag repository-for-api $(ECR_URL_PRODUCTION)
+          docker push $(ECR_URL_PRODUCTION)
+ 
     - task: Docker@2
       displayName: Build an image with numeric tag
       inputs:
