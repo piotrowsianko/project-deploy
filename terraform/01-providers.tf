@@ -3,9 +3,13 @@ terraform {
 		aws = {
 			source = "hashicorp/aws"
 			version = "4.23.0"
-			}
+		}
+		kubernetes = {
+			source = "hashicorp/kubernetes"
+			version = "2.12.1"	
 		}
 	}
+	
 provider "aws" {
 	region = "us-east-1"
 	}
@@ -15,4 +19,5 @@ provider "azurerm"{
  
   # Configure a specific Subscription ID (optional)
   subscription_id = "dfcefdc0-4ded-42a0-933b-100fbb1721ed"
+	}
 }
