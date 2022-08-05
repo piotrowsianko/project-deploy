@@ -1,6 +1,6 @@
 resource "kubernetes_service" "deploy" {
   metadata {
-    name = "deploy"
+    name = "production"
   }
   spec {
     type = "LoadBalancer"
