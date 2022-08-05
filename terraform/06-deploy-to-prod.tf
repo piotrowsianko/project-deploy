@@ -15,7 +15,7 @@ resource "kubernetes_service" "deploy" {
 }
 
 resource "kubernetes_pod" "production" {
-    count = var.prod ? 1 : 0
+    count = var.production ? 1 : 0
     metadata {
         name = "production"
         labels = {
