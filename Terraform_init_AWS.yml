@@ -50,16 +50,9 @@ stages:
                   az pipelines variable-group variable update --group-id 1 --name EC2_ARN_PRODUCTION --value $(terraform output -raw PROD_INSTANCE_ARN)
         env:
           AZURE_DEVOPS_EXT_PAT: $(PAT)
-   
 
-    - job: Destroy 
-      displayName: Destroy terraform infrastracture
-      dependsOn: Build
-      condition: failed()
-      variables:
-      - group: "ACCESS-VARIABLES"
-      steps:
       - task: Bash@3
+        condition: failed()
         displayName: Terraform destroy
         inputs:
           targetType: 'inline'
