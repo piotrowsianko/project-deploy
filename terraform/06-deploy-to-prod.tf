@@ -18,12 +18,12 @@ resource "kubernetes_pod" "production" {
     metadata {
         name = "production"
         labels = {
-            app = "website"
+            app = "shop_prod"
         }
     }
     spec {
         container {
-            name = "website"
+            name = "shop_prod"
             image = "piotrowsianko/project:latest"
         }
     }
