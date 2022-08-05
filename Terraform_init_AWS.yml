@@ -45,9 +45,7 @@ stages:
                   terraform validate
                   terraform apply -auto-approve 
                   az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
-                  az pipelines variable-group variable update --group-id 1 --name EC2_URL_PRODUCTION --value $(terraform output -raw PROD_INSTANCE_URL)
-                  az pipelines variable-group variable update --group-id 1 --name EC2_ID_PRODUCTION --value $(terraform output -raw PROD_INSTANCE_ARN)
-                  az pipelines variable-group variable update --group-id 1 --name EC2_ARN_PRODUCTION --value $(terraform output -raw PROD_INSTANCE_ARN)
+
         env:
           AZURE_DEVOPS_EXT_PAT: $(PAT)
 
