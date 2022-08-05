@@ -58,6 +58,7 @@ stages:
       displayName: Destroy terraform infrastracture
       variables:
       - group: "ACCESS-VARIABLES"
+      steps:
       - task: Bash@3
         displayName: Terraform destroy
         inputs:
