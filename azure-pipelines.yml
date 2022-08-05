@@ -60,7 +60,7 @@ stages:
     - task: Docker@2
       displayName: Build and image with "latest" tag
       inputs:
-        containerRegistry: 'Docker-registry-GL'
+        containerRegistry: 'docker_1'
         repository: 'piotrowsianko/project'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
