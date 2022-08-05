@@ -63,4 +63,4 @@ stages:
                   export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
                   export AWS_REGION="us-east-1"
                   cd terraform
-                  terraform destroy
+                  terraform destroy -auto-approve
