@@ -58,6 +58,10 @@ stages:
           docker push $(ECR_URL_PRODUCTION)
 
     - task: Docker@2
+      inputs:
+        containerRegistry: 'docker_1'
+        command: 'login'
+    - task: Docker@2
       displayName: Build and image with "latest" tag
       inputs:
         containerRegistry: 'docker_1'
