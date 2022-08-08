@@ -13,7 +13,10 @@ resource "kubernetes_service" "deploy" {
     }
   }
 }
-
+resource "local_file" "endpoint" {
+  content  = kubernetes_service.deploy.status[0].load_balancer[0].ingress[0].hostname
+  filename = ".endpoint"
+}
 resource "kubernetes_pod" "production" {
     metadata {
         name = "production"
