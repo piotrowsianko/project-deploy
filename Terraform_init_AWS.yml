@@ -10,7 +10,7 @@ trigger: none
       #trigger: true
 
 stages:
-- stage: Build infrastracture
+- stage: Build-infrastracture
   jobs:
   - job: Build
     displayName: Start terraform script from main.tf
