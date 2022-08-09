@@ -30,6 +30,17 @@ stages:
           KeyVaultName: 'key-vault-gl'
           SecretsFilter: '*'
           RunAsPreJob: true
+
+      - task: Bash@3
+        displayName: AWS Create S3 bucket
+        inputs:
+          targetType: 'inline'
+          script: |
+            #! /bin/bash
+            aws s3api create-bucket --acl private --bucket gl-piotrowsianko-projectapp --region us-east-1
+            aws s3api put-object --bucket gl-piotrowsianko-projectapp --key production --acl private
+            aws s3api put-object --bucket gl-piotrowsianko-projectapp --key staging --acl private  
+
       - task: Bash@3
         displayName: Terraform Init
         inputs:
