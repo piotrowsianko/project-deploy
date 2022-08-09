@@ -5,7 +5,7 @@ resource "kubernetes_service" "deploy" {
   spec {
     type = "LoadBalancer"
     selector = {
-      app = "website"
+      app = "production"
     }
     port {
       port        = 80
