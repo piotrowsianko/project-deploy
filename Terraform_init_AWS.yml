@@ -9,69 +9,70 @@ trigger: none
       #source: Continous Integration (Building application and pushing to dockerhub)
       #trigger: true
 
+stages:
+- stage: Build infrastracture
+  jobs:
+  - job: Build
+    displayName: Start terraform script from main.tf
+    pool: 
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+        KeyVaultName: 'key-vault-gl'
+        SecretsFilter: '*'
+        RunAsPreJob: true
 
-jobs:
-- job: Build
-  displayName: Start terraform script from main.tf
-  pool: 
-    #name: Default
-    #demands: agent.os -equals Linux
-    vmImage: ubuntu-latest
-  variables:
-  - group: "ACCESS-VARIABLES"
-  steps:
-  - checkout: self
-  - task: AzureKeyVault@2
-    displayName: Connecting to Azure Key Vault
-    inputs:
-      azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
-      KeyVaultName: 'key-vault-gl'
-      SecretsFilter: '*'
-      RunAsPreJob: true
+    - task: Bash@3
+      displayName: AWS Create S3 bucket
+      inputs:
+        targetType: 'inline'
+        script: |
+          #! /bin/bash
+          export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
+          export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
+          export AWS_REGION="us-east-1"
+          aws s3api create-bucket --bucket gl-piotrowsianko-projectapp --region us-east-1
+          aws s3api put-object --bucket gl-piotrowsianko-projectapp --key production 
+          aws s3api put-object --bucket gl-piotrowsianko-projectapp --key staging 
 
-  - task: Bash@3
-    displayName: AWS Create S3 bucket
-    inputs:
-      targetType: 'inline'
-      script: |
-        #! /bin/bash
-        export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
-        export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
-        export AWS_REGION="us-east-1"
-        aws s3api create-bucket --bucket gl-piotrowsianko-projectapp --region us-east-1
-        aws s3api put-object --bucket gl-piotrowsianko-projectapp --key production 
-        aws s3api put-object --bucket gl-piotrowsianko-projectapp --key staging 
+    - task: Bash@3
+      displayName: Terraform Init
+      inputs:
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                set -e
+                export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
+                export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
+                export AWS_REGION="us-east-1"
+                cd terraform
+                terraform init -reconfigure -upgrade
+                terraform validate
+                terraform apply -auto-approve 
+                az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
+                cat $(URL_LOAD_BALANCER)
 
-  - task: Bash@3
-    displayName: Terraform Init
-    inputs:
-      targetType: 'inline'
-      script: |
-              #! /bin/bash
-              set -e
-              export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
-              export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
-              export AWS_REGION="us-east-1"
-              cd terraform
-              terraform init -reconfigure -upgrade
-              terraform validate
-              terraform apply -auto-approve 
-              az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
-              cat $(URL_LOAD_BALANCER)
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(PAT)
 
-    env:
-      AZURE_DEVOPS_EXT_PAT: $(PAT)
-
-  - task: Bash@3
-    condition: failed()
-    displayName: Terraform destroy
-    inputs:
-      targetType: 'inline'
-      script: |
-              #! /bin/bash
-              set -e
-              export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
-              export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
-              export AWS_REGION="us-east-1"
-              cd terraform
-              terraform destroy -auto-approve
+    - task: Bash@3
+      condition: failed()
+      displayName: Terraform destroy
+      inputs:
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                set -e
+                export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
+                export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
+                export AWS_REGION="us-east-1"
+                cd terraform
+                terraform destroy -auto-approve
