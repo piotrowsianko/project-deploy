@@ -40,17 +40,6 @@ stages:
                 docker tag piotrowsianko/project:latest
                 docker push piotrowsianko/project:latest
 
-    - task: Docker@2
-      displayName: Build and image with "latest" tag
-      inputs:
-        containerRegistry: 'docker_1'
-        repository: 'piotrowsianko/project'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: 'latest'
-
-
-
           
 
 
