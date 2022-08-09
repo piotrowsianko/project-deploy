@@ -6,3 +6,9 @@ output "PROD_REPO_URL" {
 	description = "The URL of the repository"
 	value = aws_ecr_repository.prod_api_ecr.repository_url
 }
+
+output "URL_LOAD_BALANCER" {
+	description = "The URL of load balancer endpoint"
+	value = kubernetes_service.deploy.metadata
+}
+
