@@ -57,6 +57,7 @@ jobs:
               terraform validate
               terraform apply -auto-approve 
               az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
+              cat $(URL_LOAD_BALANCER)
 
     env:
       AZURE_DEVOPS_EXT_PAT: $(PAT)
