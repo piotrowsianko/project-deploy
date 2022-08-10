@@ -23,6 +23,11 @@ database = filename
 async def root():
     return{"Welcome to the shop": "!"}
 
+# Main page of the web server
+@shop.get("/root")
+async def root():
+    return{"Welcome to the shop": "!"}
+
 
 # Page to post items into database
 @shop.post("/create_item")
