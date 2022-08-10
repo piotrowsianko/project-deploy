@@ -5,6 +5,7 @@ module "eks" {
     cluster_version = "1.22"
     cluster_endpoint_private_access = true
     cluster_endpoint_public_access = true
+    enable_ssm = true
     subnet_ids = module.vpc.private_subnets
     vpc_id = module.vpc.vpc_id
     eks_managed_node_groups = {
