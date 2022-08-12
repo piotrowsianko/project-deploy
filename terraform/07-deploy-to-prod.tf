@@ -20,7 +20,6 @@ resource "local_file" "endpoint" {
 }
 
 resource "kubernetes_pod" "prodenv" {
-  count = var.prod ? 1 : 0
   depends_on = [
     module.eks
   ]
