@@ -43,8 +43,21 @@ stages:
         targetType: 'inline'
         script: |
           #! /bin/bash
+          export db_username=$(db-username)
+          export db_password=$(db-password)
+          export db_endpoint=$(db-endpoint)
           docker build -t shop_prod .
           docker run --name shop_prod -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_DB=dev -v ${PWD}/db_data:/var/lib/postgresql/data -d postgres
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
           docker tag shop_prod $(ECR_URL_PRODUCTION)
           docker push $(ECR_URL_PRODUCTION)
+
+    - task: Bash@3
+      displayName: Apt Update and Install of prerequisites
+      inputs:
+        targetType: inline
+        script: |
+                docker login -u piotrowsianko -p $(docker-PAT)
+                docker build --no-cache --tag piotrowsianko/project .
+                docker tag piotrowsianko/project:latest
+                docker push piotrowsianko/project:latest
