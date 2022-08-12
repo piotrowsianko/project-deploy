@@ -7,8 +7,9 @@ output "PROD_REPO_URL" {
 	value = aws_ecr_repository.prod_api_ecr.repository_url
 }
 
-output "URL_LOAD_BALANCER" {
-	description = "The URL of load balancer endpoint"
-	value = kubernetes_service.deploy.metadata
+output "db_endpoint" {
+	description = "Endpoint URL of the database"
+	value = aws_db_instance.pioows-prod-db.endpoint
+
 }
 
