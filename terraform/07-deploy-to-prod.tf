@@ -32,7 +32,7 @@ resource "kubernetes_pod" "prodenv" {
   spec {
     container {
       name  = "website"
-      image = "piotrowsianko/project:stable"
+      image = "piotrowsianko/project:latest"
     }
   }
 }
