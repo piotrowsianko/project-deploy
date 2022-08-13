@@ -33,29 +33,32 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
-          aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
-          aws configure set default.region us-east-1
+                aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+                aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+                aws configure set default.region us-east-1
 
     - task: Bash@3
       displayName: Push application image to ECR
       inputs:
         targetType: 'inline'
         script: |
-          #! /bin/bash
-          export db_username=$(db-username)
-          export db_password=$(db-password)
-          export db_endpoint=$(db-endpoint)
-          docker build -t shop_prod .
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
-          docker tag shop_prod $(ECR_URL_PRODUCTION)
-          docker push $(ECR_URL_PRODUCTION)
+                #! /bin/bash
+                export db_username=$(db-username)
+                export db_password=$(db-password)
+                export db_endpoint=$(db-endpoint)
+                docker build -t shop_prod .
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
+                docker tag shop_prod $(ECR_URL_PRODUCTION)
+                docker push $(ECR_URL_PRODUCTION)
 
     - task: Bash@3
       displayName: Apt Update and Install of prerequisites
       inputs:
         targetType: inline
         script: |
+                export db_username=$(db-username)
+                export db_password=$(db-password)
+                export db_endpoint=$(db-endpoint)
                 docker login -u piotrowsianko -p $(docker-PAT)
                 docker build --no-cache --tag piotrowsianko/project .
                 docker tag piotrowsianko/project:latest
