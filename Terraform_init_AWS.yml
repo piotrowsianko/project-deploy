@@ -104,6 +104,8 @@ stages:
           aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
           aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
           aws configure set default.region us-east-1
+          sudo apt-get -y update
+          sudo apt-get -y upgrade
 
     - task: Bash@3
       displayName: Push application image to ECR
@@ -131,5 +133,5 @@ stages:
           aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
           aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
           aws configure set default.region us-east-1
-          aws eks --region us-east-1 update-kubeconfig --name app
+          aws eks --region us-east-1 update-kubeconfig --name production
           kubectl apply -f kube.yml
