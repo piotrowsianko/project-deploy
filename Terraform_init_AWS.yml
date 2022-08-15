@@ -81,7 +81,7 @@ stages:
                 cd terraform
                 terraform destroy -auto-approve
 
-  - job: Build
+  - job: PushApplication
     steps:
     - task: Bash@3
       displayName: Push application image to ECR
