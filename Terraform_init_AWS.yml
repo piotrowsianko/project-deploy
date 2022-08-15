@@ -80,3 +80,27 @@ stages:
                 export TF_VAR_db_password=$(db-password)
                 cd terraform
                 terraform destroy -auto-approve
+
+  - job: Build and push to ECR
+    steps:
+    - task: Bash@3
+      displayName: Push application image to ECR
+      inputs:
+        targetType: 'inline'
+        script: |
+          #! /bin/bash
+          docker build -t production .
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
+          docker tag production $(ECR_URL_PRODUCTION)
+          docker push $(ECR_URL_PRODUCTION)
+
+  - job: Deploy application with Kubernetes
+    steps: 
+    - task: Bash@3
+      displayName: Deploy application with kube.yml
+      inputs:
+        targetType: 'inline'
+        script: |
+          #! /bin/bash
+          aws eks --region us-east-1 update-kubeconfig --name app
+          kubectl apply -f kube.yml
