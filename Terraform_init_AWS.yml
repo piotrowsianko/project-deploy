@@ -113,7 +113,7 @@ stages:
           #! /bin/bash
           docker build -t production .
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
-          docker tag production:latest $(ECR_URL_PRODUCTION)
+          docker tag production:latest $(ECR_URL_PRODUCTION):latest
           docker push $(ECR_URL_PRODUCTION)
 
 
