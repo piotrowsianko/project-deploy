@@ -111,9 +111,10 @@ stages:
         targetType: 'inline'
         script: |
           #! /bin/bash
-          docker build -t production .
+          
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
-          docker tag production:latest 859466819757.dkr.ecr.us-east-1.amazonaws.com/production:latest
+          docker build -t production .
+          docker tag production:latest $(ECR_URL_PRODUCTION)
           docker push $(ECR_URL_PRODUCTION)
 
 
