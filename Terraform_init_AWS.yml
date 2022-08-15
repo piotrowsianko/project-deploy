@@ -88,6 +88,8 @@ stages:
       #name: Default
       #demands: agent.os -equals Linux
       vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
     steps:
     - task: AzureKeyVault@2
       displayName: Connecting to Azure Key Vault
