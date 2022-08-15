@@ -82,6 +82,7 @@ stages:
                 terraform destroy -auto-approve
 
   - job: PushApplication
+    dependsOn: Build
     steps:
     - task: Bash@3
       displayName: Push application image to ECR
@@ -95,6 +96,7 @@ stages:
           docker push $(ECR_URL_PRODUCTION)
 
   - job: Deploy
+    dependsOn: PushApplication
     steps: 
     - task: Bash@3
       displayName: Deploy application with kube.yml
