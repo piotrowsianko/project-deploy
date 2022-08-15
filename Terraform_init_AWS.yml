@@ -91,6 +91,7 @@ stages:
     variables:
     - group: "ACCESS-VARIABLES"
     steps:
+    - checkout: self
     - task: AzureKeyVault@2
       displayName: Connecting to Azure Key Vault
       inputs:
@@ -115,9 +116,9 @@ stages:
         targetType: 'inline'
         script: |
           #! /bin/bash
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 438282242070.dkr.ecr.us-east-1.amazonaws.com
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
           docker build -t production .
-          docker tag production:latest 438282242070.dkr.ecr.us-east-1.amazonaws.com/production:latest
+          docker tag production:latest $(ECR_URL_PRODUCTION)
           docker push $(ECR_URL_PRODUCTION)
 
 
