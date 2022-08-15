@@ -83,6 +83,8 @@ stages:
 
   - job: PushApplication
     dependsOn: Build
+    variables:
+    - group: "ACCESS-VARIABLES"
     steps:
     - task: Bash@3
       displayName: Push application image to ECR
@@ -100,6 +102,8 @@ stages:
 
   - job: Deploy
     dependsOn: PushApplication
+    variables:
+    - group: "ACCESS-VARIABLES"
     steps: 
     - task: Bash@3
       displayName: Deploy application with kube.yml
