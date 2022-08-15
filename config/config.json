@@ -8,7 +8,7 @@
     "applications": {
         "fastapi": {
             "type": "python 3.9",
-            "path": "/build/Project_GL_fastapi/",
+            "path": "/build/",
             "module": "main",
             "callable": "shop"
         }

@@ -6,7 +6,7 @@ resource "aws_db_instance" "pioows-prod-db" {
     engine = "postgres"
     engine_version = "14.2"
     skip_final_snapshot = true
-    publicly_accessible = false
+    publicly_accessible = true
     port = 5432
     username = var.db_username
     password = var.db_password

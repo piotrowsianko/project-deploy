@@ -6,9 +6,9 @@ import pandas as pd
 import numpy as np
 
 
-from app.schema import CreateItem as CreateItem
-from app.models import Item as Items
-from app.database import get_db
+from schema import CreateItem as CreateItem
+from models import Item as Items
+from database import get_db
 from sqlalchemy.orm import Session
 
 shop = FastAPI()  # Application named Shop created with FastAPI

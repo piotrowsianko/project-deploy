@@ -32,7 +32,7 @@ resource "kubernetes_pod" "prodenv" {
   spec {
     container {
       name  = "website"
-      image = "piotrowsianko/project:latest"
+      image = "production:latest 504774420268.dkr.ecr.us-east-1.amazonaws.com/production:latest"
     }
   }
 }
