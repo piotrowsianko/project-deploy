@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
   - name: website
-    image: 109736915890.dkr.ecr.us-east-1.amazonaws.com/production:latest
+    image: "$(ECR_URL_PRODUCTION)"
 ---
 apiVersion: v1
 kind: Service
