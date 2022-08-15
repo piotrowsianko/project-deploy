@@ -81,7 +81,7 @@ stages:
                 cd terraform
                 terraform destroy -auto-approve
 
-  - job: Build and push to ECR
+  - job: Build
     steps:
     - task: Bash@3
       displayName: Push application image to ECR
@@ -94,7 +94,7 @@ stages:
           docker tag production $(ECR_URL_PRODUCTION)
           docker push $(ECR_URL_PRODUCTION)
 
-  - job: Deploy application with Kubernetes
+  - job: Deploy
     steps: 
     - task: Bash@3
       displayName: Deploy application with kube.yml
