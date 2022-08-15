@@ -83,18 +83,19 @@ stages:
 
   - job: PushApplication
     dependsOn: Build
-    variables:
-    - group: "ACCESS-VARIABLES"
+    displayName: Build and Push Docker Image
+    pool:
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
     steps:
-    - checkout: self
     - task: AzureKeyVault@2
       displayName: Connecting to Azure Key Vault
       inputs:
-        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
-        KeyVaultName: 'key-vault-gl'
-        SecretsFilter: '*'
-        RunAsPreJob: true
-        
+          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+          KeyVaultName: 'key-vault-gl'
+          SecretsFilter: '*'
+          RunAsPreJob: true
     - task: Bash@3
       displayName: Authentication to AWS
       inputs:
