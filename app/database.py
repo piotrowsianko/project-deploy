@@ -2,10 +2,11 @@ from requests import session
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
+#import os
 
 
-SQLALCHEMY_DATABASE_URL = "postgresql://"+ os.environ['db_username']+ ":" +os.environ['db_password']+"@"+ os.environ['db_endpoint'] +"/postgres"
+#SQLALCHEMY_DATABASE_URL = "postgresql://"+ os.environ['db_username']+ ":" +os.environ['db_password']+"@"+ os.environ['db_endpoint'] +"/postgres"
+SQLALCHEMY_DATABASE_URL = "postgresql:/$(db_username):$(db_password)@$(db_endpoint)/postgres"
 #SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@terraform-2022081511444916190000000b.cyiv2s4yjhem.us-east-1.rds.amazonaws.com:5432/postgres"
 
 

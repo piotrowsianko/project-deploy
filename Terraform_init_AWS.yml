@@ -39,9 +39,9 @@ stages:
           export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
           export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
           export AWS_REGION="us-east-1"
-          aws s3api create-bucket --bucket gl-piotrowsianko-projectapp --region us-east-1
-          aws s3api put-object --bucket gl-piotrowsianko-projectapp --key production 
-          aws s3api put-object --bucket gl-piotrowsianko-projectapp --key staging 
+          aws s3api create-bucket --bucket gl-piotrowsianko-projectapp2 --region us-east-1
+          aws s3api put-object --bucket gl-piotrowsianko-projectapp2 --key production 
+          aws s3api put-object --bucket gl-piotrowsianko-projectapp2 --key staging 
 
     - task: Bash@3
       displayName: Terraform Init
@@ -116,6 +116,35 @@ stages:
         targetType: 'inline'
         script: |
           #! /bin/bash
+          export db_endpoint=$(db-endpoint)
+          export db_username=$(db-username)
+          export db_passwrd=$(db-password)
+          cat << EOF > app/database.py 
+          from requests import session
+          from sqlalchemy import create_engine
+          from sqlalchemy.ext.declarative import declarative_base
+          from sqlalchemy.orm import sessionmaker
+          #import os
+
+
+          #SQLALCHEMY_DATABASE_URL = "postgresql://"+ os.environ['db_username']+ ":" +os.environ['db_password']+"@"+ os.environ['db_endpoint'] +"/postgres"
+          SQLALCHEMY_DATABASE_URL = "postgresql:/$(db_username):$(db_password)@$(db_endpoint)/postgres"
+          #SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@terraform-2022081511444916190000000b.cyiv2s4yjhem.us-east-1.rds.amazonaws.com:5432/postgres"
+
+
+          engine = create_engine(SQLALCHEMY_DATABASE_URL)
+          connection = engine.connect()
+          SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+          Base = declarative_base()
+
+          def get_db():
+              db = SessionLocal()
+              try:
+                  yield db
+              except:
+                  db.close()
+          EOF
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
           docker build -t production .
           docker tag production:latest $(ECR_URL_PRODUCTION)
