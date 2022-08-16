@@ -43,6 +43,15 @@ resource "aws_security_group_rule" "TCP-ingress-prod" {
     description = "Allows all Postgre incoming traffic"
 }
 
+resource "aws_security_group_rule" "Kubernetes-access" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  security_group_id = aws_security_group.db_sg.id
+  source_security_group_id = module.eks.security_group_id
+}
+
 resource "aws_security_group_rule" "All-egress-prod" {
   type              = "egress"
   security_group_id = aws_security_group.db_sg.id
