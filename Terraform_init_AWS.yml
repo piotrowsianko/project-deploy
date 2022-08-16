@@ -144,4 +144,28 @@ stages:
           aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
           aws configure set default.region us-east-1
           aws eks --region us-east-1 update-kubeconfig --name production
+          cat << EOF > kube.yml
+          ---
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: app
+            labels:
+              app: website
+          spec:
+            containers:
+            - name: website
+              image: "$(ECR_URL_PRODUCTION)"
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: testenv-deploy
+          spec:
+            type: LoadBalancer
+            selector:
+              app: website
+            ports:
+            - protocol: TCP
+              port: 80
           kubectl apply -f kube.yml
