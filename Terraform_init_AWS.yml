@@ -168,4 +168,5 @@ stages:
             ports:
             - protocol: TCP
               port: 80
+          EOF
           kubectl apply -f kube.yml
