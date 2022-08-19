@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
   - name: website
-    image: "632610202813.dkr.ecr.us-east-1.amazonaws.com/production:latest"
+    image: "175939439604.dkr.ecr.us-east-1.amazonaws.com/production:latest"
     ports:
       - containerPort: 80
 

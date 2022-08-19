@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 #SQLALCHEMY_DATABASE_URL = database_address
 #SQLALCHEMY_DATABASE_URL = "postgresql://"+ os.getenv['db_username']+ ":" +os.getenv['db_password']+"@"+ os.getenv['db_endpoint'] +"/postgres"
 #SQLALCHEMY_DATABASE_URL = "postgresql:/$(db_username):$(db_password)@$(db_endpoint)/postgres"
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password1@terraform-2022081908271045210000000b.chzmgota2lxj.us-east-1.rds.amazonaws.com:5432/postgres"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password1@terraform-2022081913233896190000000b.c1pyjveipgev.us-east-1.rds.amazonaws.com:5432/postgres"
 
 
 
