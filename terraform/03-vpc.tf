@@ -21,3 +21,4 @@ module "vpc" {
         "kubernetes.io/role/private-elb" = "1"
     }
 }
+

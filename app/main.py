@@ -5,7 +5,6 @@ import json
 import pandas as pd
 import numpy as np
 
-
 from schema import CreateItem as CreateItem
 from models import Item as Items
 from database import get_db

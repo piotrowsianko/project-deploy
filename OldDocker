@@ -1,0 +1,13 @@
+FROM python:3.9
+COPY ./config/config.json /docker-entrypoint.d/config.json
+RUN mkdir build
+COPY ./app/requirements.txt ./build
+RUN apt update && apt install -y python3-pip                                  \
+    && pip3 install -r /build/requirements.txt                               \
+    && apt autoremove --purge -y                                              \
+    && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/*.list
+COPY ./config/config.json /docker-entrypoint.d/config.json
+COPY ./app ./build
+WORKDIR ./build
+CMD ["uvicorn", "main:shop","--host", "0.0.0.0", "--port", "80"]
+EXPOSE 80

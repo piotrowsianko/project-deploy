@@ -1,0 +1,7 @@
+postgresql://
+postgres
+:
+password1
+@
+db_endpoint
+/postgres
