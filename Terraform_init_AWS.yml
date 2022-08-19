@@ -1,0 +1,171 @@
+name: Terraform_setup.yml
+
+trigger: none
+
+#This pipeline will be triggerred by another pipeline
+#resources:
+  #pipelines:
+    #- pipeline: Terraform_scripts
+      #source: Continous Integration (Building application and pushing to dockerhub)
+      #trigger: true
+
+stages:
+- stage: Build_infrastracture
+  jobs:
+  - job: Build
+    displayName: Start terraform script from main.tf
+    pool: 
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+        KeyVaultName: 'key-vault-gl'
+        SecretsFilter: '*'
+        RunAsPreJob: true
+
+
+    - task: Bash@3
+      displayName: Terraform Init
+      inputs:
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                set -e
+                export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
+                export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
+                export AWS_REGION="us-east-1"
+                export TF_VAR_db_username=$(db-username)
+                export TF_VAR_db_password=$(db-password)
+                cd terraform
+                terraform init -reconfigure -upgrade
+                terraform validate
+                terraform apply -auto-approve 
+                az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
+                az pipelines variable-group variable update --group-id 1 --name db-endpoint --value $(terraform output -raw db_endpoint)   
+
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(PAT)
+
+    - task: Bash@3
+      condition: failed()
+      displayName: Terraform destroy
+      inputs:
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                set -e
+                export AWS_ACCESS_KEY_ID=$(AWS-ACCESS-KEY-ID)
+                export AWS_SECRET_ACCESS_KEY=$(AWS-SECRET-ACCESS-KEY)
+                export AWS_REGION="us-east-1"
+                export TF_VAR_db_username=$(db-username)
+                export TF_VAR_db_password=$(db-password)
+                cd terraform
+                terraform destroy -auto-approve
+
+  - job: PushApplication
+    dependsOn: Build
+    displayName: Build and Push Docker Image
+    pool:
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+          KeyVaultName: 'key-vault-gl'
+          SecretsFilter: '*'
+          RunAsPreJob: true
+    - task: Bash@3
+      displayName: Authentication to AWS
+      inputs:
+        targetType: 'inline'
+        script: |
+          aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+          aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+          aws configure set default.region us-east-1
+          sudo apt-get -y update
+          sudo apt-get -y upgrade
+
+    - task: Bash@3
+      displayName: Push application image to ECR
+      inputs:
+        targetType: 'inline'
+        script: |
+          #! /bin/bash
+          export db_endpoint=$(db-endpoint)
+          export db_username=$(db-username)
+          export db_passwrd=$(db-password)
+          cat << EOF > app/data.txt 
+          postgresql://
+          :
+          $db_password
+          @
+          $db_endpoint
+          /postgres
+          EOF
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
+          docker build -t production .
+          docker tag production:latest $(ECR_URL_PRODUCTION)
+          docker push $(ECR_URL_PRODUCTION)
+
+
+  - job: Deploy
+    dependsOn: PushApplication
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps: 
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+          KeyVaultName: 'key-vault-gl'
+          SecretsFilter: '*'
+          RunAsPreJob: true
+    - task: Bash@3
+      displayName: Deploy application with kube.yml
+      inputs:
+        targetType: 'inline'
+        script: |
+          #! /bin/bash
+          aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+          aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+          aws configure set default.region us-east-1
+          aws eks --region us-east-1 update-kubeconfig --name production
+          cat << EOF > kube.yml
+          ---
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: app
+            labels:
+              app: website
+          spec:
+            containers:
+            - name: website
+              image: "$(ECR_URL_PRODUCTION)"
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: testenv-deploy
+          spec:
+            type: LoadBalancer
+            selector:
+              app: website
+            ports:
+            - protocol: TCP
+              port: 80
+          EOF
+          kubectl apply -f kube.yml

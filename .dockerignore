@@ -1,0 +1,6 @@
+#terraform files
+*/terraform*
+*/test_terraform*
+Makefile
+kubectl
+*.yml*

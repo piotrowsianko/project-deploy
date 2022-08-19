@@ -1,0 +1,46 @@
+
+trigger:
+#- master
+- none
+
+resources:
+- repo: self
+
+variables:
+- group: "ACCESS-VARIABLES"
+
+
+stages:
+
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Job_1
+    displayName: Build image
+    pool:
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureKeyVault@2
+      inputs:
+        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+        KeyVaultName: 'key-vault-gl'
+        SecretsFilter: '*'
+        RunAsPreJob: true
+    - task: Bash@3
+      displayName: Apt Update and Install of prerequisites
+      inputs:
+        targetType: inline
+        script: |
+                sudo apt-get -y update
+                sudo apt-get -y upgrade
+                docker login -u piotrowsianko -p $(docker-PAT)
+                docker build --no-cache --tag piotrowsianko/project .
+                docker tag piotrowsianko/project:latest
+                docker push piotrowsianko/project:latest
+
+          
+
+
+
