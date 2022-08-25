@@ -47,6 +47,7 @@ stages:
                 terraform init -reconfigure -upgrade
                 terraform validate
                 terraform apply -auto-approve 
+                az login
                 az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
                 az pipelines variable-group variable update --group-id 1 --name db-endpoint --value $(terraform output -raw db_endpoint)
     - task: Bash@3
@@ -61,7 +62,7 @@ stages:
         AZURE_DEVOPS_EXT_PAT: $(PAT)
 
     - task: Bash@3
-      condition: failed()
+      condition: always(failed(), canceled())
       displayName: Terraform destroy
       inputs:
         targetType: 'inline'
