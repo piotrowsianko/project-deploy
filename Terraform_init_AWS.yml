@@ -108,13 +108,14 @@ stages:
           export db_endpoint=$(db-endpoint)
           export db_username=$(db-username)
           export db_passwrd=$(db-password)
-          cat << EOF > app/data.txt 
-          postgresql://
-          :
-          $db_password
-          @
-          $db_endpoint
-          /postgres
+          cat << EOF > app/data.py
+          url = "postgresql+psycopg2://\
+          $(db_username)\
+          :\
+          $(db_password)\
+          @\
+          $(db_endpoint)\
+          /postgres" 
           EOF
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
           docker build -t production .
@@ -155,7 +156,7 @@ stages:
           spec:
             containers:
             - name: website
-              image: "$(ECR_URL_PRODUCTION)"
+              image: "$(ECR_URL_PRODUCTION):latest"
           ---
           apiVersion: v1
           kind: Service
