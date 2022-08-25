@@ -34,6 +34,16 @@ resource "aws_security_group_rule" "SSH-ingress-prod" {
     description = "Allows all SSH incoming traffic"
 }
 
+resource "aws_security_group_rule" "PostgreSQL-ingress-prod" {
+    type = "ingress"
+    security_group_id = aws_security_group.db_sg.id
+    from_port = 5432
+    to_port = 5432
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows all Postgre incoming traffic"
+}
+
 resource "aws_security_group_rule" "HTTP-ingress-prod" {
     type = "ingress"
     security_group_id = aws_security_group.db_sg.id
