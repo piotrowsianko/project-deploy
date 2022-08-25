@@ -49,7 +49,13 @@ stages:
                 az pipelines variable-group variable update --group-id 1 --name db-endpoint --value $(terraform output -raw db_endpoint)
       env:
         AZURE_DEVOPS_EXT_PAT: $(PAT)
-
+    - task: Bash@3
+      displayName: Dump data to db
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres database.sql
     - task: Bash@3
       condition: or(failed(), canceled())
       displayName: Terraform destroy
