@@ -29,8 +29,6 @@ stages:
         KeyVaultName: 'key-vault-gl'
         SecretsFilter: '*'
         RunAsPreJob: true
-
-
     - task: Bash@3
       displayName: Terraform Init
       inputs:
@@ -47,9 +45,10 @@ stages:
                 terraform init -reconfigure -upgrade
                 terraform validate
                 terraform apply -auto-approve 
-                az login
                 az pipelines variable-group variable update --group-id 1 --name ECR_URL_PRODUCTION --value $(terraform output -raw PROD_REPO_URL)
                 az pipelines variable-group variable update --group-id 1 --name db-endpoint --value $(terraform output -raw db_endpoint)
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(PAT)
     - task: Bash@3
       displayName: Dump data to db
       inputs: 
@@ -57,9 +56,6 @@ stages:
         script: |
                 #! /bin/bash
                 pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres database.sql
-
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(PAT)
 
     - task: Bash@3
       condition: or(failed(), canceled())
