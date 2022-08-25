@@ -62,7 +62,7 @@ stages:
         AZURE_DEVOPS_EXT_PAT: $(PAT)
 
     - task: Bash@3
-      condition: always(failed(), canceled())
+      condition: or(failed(), canceled())
       displayName: Terraform destroy
       inputs:
         targetType: 'inline'
