@@ -10,7 +10,7 @@ resource "aws_db_instance" "pioows-prod-db" {
     port = 5432
     username = var.db_username
     password = var.db_password
-    db_name = "postgres"
+    db_name = "postgres1"
     vpc_security_group_ids = [aws_security_group.db_sg.id]
     db_subnet_group_name = module.vpc.database_subnet_group
     
