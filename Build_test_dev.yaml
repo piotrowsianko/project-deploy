@@ -5,6 +5,22 @@ trigger:
 resources:
 - repo: self
 
-variables:
-- group: "ACCESS-VARIABLES"
+stages:
+- stage: Build_infrastracture
+  jobs:
+  - job: Build
+    displayName: Initialize AWS infrastracture with terraform scripts
+    pool: 
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+        KeyVaultName: 'key-vault-gl'
+        SecretsFilter: '*'
+        RunAsPreJob: true
 
