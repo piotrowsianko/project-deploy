@@ -62,13 +62,6 @@ stages:
       env:
         AZURE_DEVOPS_EXT_PAT: $(PAT)
     - task: Bash@3
-      displayName: Dump data to db
-      inputs: 
-        targetType: 'inline'
-        script: |
-                #! /bin/bash
-                pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres database.sql
-    - task: Bash@3
       condition: or(failed(), canceled())
       displayName: Terraform destroy
       inputs:
@@ -185,3 +178,32 @@ stages:
               port: 80
           EOF
           kubectl apply -f kube.yml
+
+
+- stage: Dump DB
+  jobs:
+  - job: Build
+    displayName: Dump data to DB
+    pool: 
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+        KeyVaultName: 'key-vault-gl'
+        SecretsFilter: '*'
+        RunAsPreJob: true
+    - task: Bash@3
+      displayName: Dump data with pg_restore
+      inputs:
+        targetType: 'inline'
+        script: |
+          #! /bin/bash
+          pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres database.sql
