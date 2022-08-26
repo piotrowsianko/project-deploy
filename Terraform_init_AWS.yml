@@ -180,7 +180,7 @@ stages:
           kubectl apply -f kube.yml
 
 
-- stage: Dump DB
+- stage: Dump_DB
   jobs:
   - job: Build
     displayName: Dump data to DB
