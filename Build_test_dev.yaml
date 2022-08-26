@@ -1,0 +1,10 @@
+trigger:
+- dev-test
+- none
+
+resources:
+- repo: self
+
+variables:
+- group: "ACCESS-VARIABLES"
+
