@@ -114,7 +114,7 @@ stages:
           #! /bin/bash
           export db_endpoint=$(db-endpoint)
           export db_username=$(db-username)
-          export db_passwrd=$(db-password)
+          export db_password=$(db-password)
           cat << EOF > app/data.py
           url = "postgresql+psycopg2://\
           $(db_username)\

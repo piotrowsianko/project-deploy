@@ -1,6 +1,6 @@
 #terraform script provisioning PostgreSQL database that will be used as production database
 
-resource "aws_db_instance" "pioows-prod-db" {
+resource "aws_db_instance" "pioows-testing-db" {
     allocated_storage = 10
     instance_class = "db.t3.micro"
     engine = "postgres"
