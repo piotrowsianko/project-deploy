@@ -1,3 +1,4 @@
+name: 1.$(Rev:r)
 trigger:
 - feature*
 
@@ -68,6 +69,6 @@ stages:
         targetType: 'inline'
         script: |
                 #! /bin/bash
-                az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch dev-test --output table
+                az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch dev-test --output table --auto-complete true
       env:
         AZURE_DEVOPS_EXT_PAT: $(PAT)
