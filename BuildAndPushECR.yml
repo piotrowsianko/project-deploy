@@ -1,0 +1,75 @@
+trigger:
+#- master
+- none
+
+resources:
+- repo: self
+
+variables:
+- group: "ACCESS-VARIABLES"
+
+
+stages:
+
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Job_1
+    displayName: Build image to ECR
+    pool:
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+          KeyVaultName: 'key-vault-gl'
+          SecretsFilter: '*'
+          RunAsPreJob: true
+    - task: Bash@3
+      displayName: Authentication to AWS
+      inputs:
+        targetType: 'inline'
+        script: |
+                aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+                aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+                aws configure set default.region us-east-1
+
+    - task: Bash@3
+      displayName: Push application image to ECR
+      inputs:
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                export db_username=$(db-username)
+                export db_password=$(db-password)
+                export db_endpoint=$(db-endpoint)
+                docker build -t production .
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
+                docker tag shop_test $(ECR_URL_PRODUCTION)
+                docker push $(ECR_URL_PRODUCTION)
+
+    - task: Bash@3
+      displayName: Apt Update and Install of prerequisites
+      inputs:
+        targetType: inline
+        script: |
+                #! /bin/bash
+                export db_username=$(db-username)
+                export db_password=$(db-password)
+                export db_endpoint=$(db-endpoint)
+                docker login -u piotrowsianko -p $(docker-PAT)
+                docker build --no-cache --tag piotrowsianko/project .
+                docker tag piotrowsianko/project:latest
+                docker push piotrowsianko/project:latest
+
+    - task: Bash@3
+      displayName: Apt Update and Install of prerequisites
+      inputs:
+        targetType: inline
+        script: |
+                #! /bin/bash
+                cd app
+                python test_main.py

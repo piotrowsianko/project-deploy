@@ -1,0 +1,159 @@
+name: 1.$(Rev:r)
+trigger:
+- none
+
+
+resources:
+- repo: self
+
+stages:
+- stage: Tests_and_push
+  jobs:
+  - job: Build
+    displayName: Download application from testing ECR and deploy to test EKS and perform tests
+    pool: 
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+        KeyVaultName: 'key-vault-gl'
+        SecretsFilter: '*'
+        RunAsPreJob: true
+    - task: Bash@3
+      displayName: Authentication to AWS
+      inputs:
+        targetType: 'inline'
+        script: |
+                aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+                aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+                aws configure set default.region us-east-1
+
+    - task: Bash@3
+      displayName: Push application image to ECR
+      inputs:
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                export db_username=$(db-username-test)
+                export db_password=$(db-password-test)
+                export db_endpoint=$(db-testing-endpoint)
+                aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+                aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+                aws configure set default.region us-east-1
+                aws eks --region us-east-1 update-kubeconfig --name testing
+                cat << EOF > kube.yml
+                ---
+                apiVersion: v1
+                kind: Pod
+                metadata:
+                  name: app
+                  labels:
+                    app: website
+                spec:
+                  containers:
+                  - name: website
+                    image: "$(ECR_URL_TESTING):latest"
+                ---
+                apiVersion: v1
+                kind: Service
+                metadata:
+                  name: testing-deploy
+                spec:
+                  type: LoadBalancer
+                  selector:
+                    app: website
+                  ports:
+                  - protocol: TCP
+                    port: 80
+                EOF
+                kubectl apply -f kube.yml
+                az pipelines variable-group variable update --group-id 1 --name LB_TEST_URL --value $(kubectl get services testing-deploy -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+                echo $(LB_TEST_URL)
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(PAT)
+
+    - task: Bash@3
+      displayName: Integration tests placeholder
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                echo $(curl $(LB_TEST_URL))
+
+    - task: Bash@3
+      displayName: Documentation tests placeholder
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                echo 'Documentation generated'
+
+    - task: Bash@3
+      displayName: Push images to ECR and Docker
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
+                docker build -t production .
+                docker tag production $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
+                docker push $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
+                docker tag production $(ECR_URL_PRODUCTION):latest 
+                docker push $(ECR_URL_PRODUCTION):latest
+                docker login -u piotrowsianko -p $(docker-PAT)
+                docker tag production piotrowsianko/project:latest
+                docker push piotrowsianko/project:latest
+                docker tag production piotrowsianko/project:$(Build.BuildNumber)
+                docker push piotrowsianko/project:$(Build.BuildNumber)
+
+    - task: Bash@3
+      displayName: Artifacts push placeholder
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                echo 'Artifacts generated and sent to Azure'
+
+- stage: Create_PR_to_Prod
+  dependsOn: Tests_and_push
+  jobs:
+  - job: Build
+    displayName: Open PR to Prod Branch
+    pool: 
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+          azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+          KeyVaultName: 'key-vault-gl'
+          SecretsFilter: '*'
+          RunAsPreJob: true
+    - task: Bash@3
+      displayName: Authentication to AWS
+      inputs:
+        targetType: 'inline'
+        script: |
+          aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+          aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+          aws configure set default.region us-east-1
+    - task: Bash@3
+      displayName: Opening Pull request to production
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch master --output table --auto-complete true
+                echo 'Pull request created!'
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(PAT)
