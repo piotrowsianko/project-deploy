@@ -1,0 +1,68 @@
+ame: 1.$(Rev:r)
+trigger:
+- master
+
+
+resources:
+- repo: self
+
+stages:
+- stage: Deploy to prod
+  jobs:
+  - job: Build
+    displayName: Get app image from ECR
+    pool: 
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    - task: AzureKeyVault@2
+      displayName: Connecting to Azure Key Vault
+      inputs:
+        azureSubscription: 'Azure subscription 1(dfcefdc0-4ded-42a0-933b-100fbb1721ed)'
+        KeyVaultName: 'key-vault-gl'
+        SecretsFilter: '*'
+        RunAsPreJob: true
+    - task: Bash@3
+      displayName: Authentication to AWS
+      inputs:
+        targetType: 'inline'
+        script: |
+                aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
+                aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
+                aws configure set default.region us-east-1
+
+    - task: Bash@3
+      displayName: Login to EKS and get app image rolling 
+      inputs:
+        targetType: 'inline'
+        script: |
+                aws eks --region us-east-1 update-kubeconfig --name production
+                cat << EOF > kube.yml
+                ---
+                apiVersion: v1
+                kind: Pod
+                metadata:
+                  name: app
+                  labels:
+                    app: website
+                spec:
+                  containers:
+                  - name: website
+                    image: "$(ECR_URL_PRODUCTION):latest"
+                ---
+                apiVersion: v1
+                kind: Service
+                metadata:
+                  name: production-deploy
+                spec:
+                  type: LoadBalancer
+                  selector:
+                    app: website
+                  ports:
+                  - protocol: TCP
+                    port: 80
+                EOF
+                kubectl apply -f kube.yml
+                              
