@@ -206,4 +206,4 @@ stages:
         targetType: 'inline'
         script: |
           #! /bin/bash
-          pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres1 database.sql
+          pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres database.sql
