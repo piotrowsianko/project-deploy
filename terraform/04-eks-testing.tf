@@ -1,7 +1,7 @@
-module "eks" {
+module "eks_testing" {
     source = "terraform-aws-modules/eks/aws"
     version = "18.27.1"
-    cluster_name = "production"
+    cluster_name = "testing"
     cluster_version = "1.22"
     cluster_endpoint_private_access = true
     cluster_endpoint_public_access = true
