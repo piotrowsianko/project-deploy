@@ -83,7 +83,7 @@ stages:
         targetType: 'inline'
         script: |
                 #! /bin/bash
-                curl $(LB_TEST_URL)
+                echo $(curl $(LB_TEST_URL))
 
     - task: Bash@3
       displayName: Documentation tests placeholder
@@ -100,14 +100,15 @@ stages:
         script: |
                 #! /bin/bash
                 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
-                docker tag testing $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
+                docker build -t production .
+                docker tag production $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
                 docker push $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
-                docker tag testing $(ECR_URL_PRODUCTION):latest 
+                docker tag production $(ECR_URL_PRODUCTION):latest 
                 docker push $(ECR_URL_PRODUCTION):latest
                 docker login -u piotrowsianko -p $(docker-PAT)
-                docker tag piotrowsianko/project:latest
+                docker tag production piotrowsianko/project:latest
                 docker push piotrowsianko/project:latest
-                docker tag piotrowsianko/project:$(Build.BuildNumber)
+                docker tag production piotrowsianko/project:$(Build.BuildNumber)
                 docker push piotrowsianko/project:$(Build.BuildNumber)
 
     - task: Bash@3
