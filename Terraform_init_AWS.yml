@@ -1,4 +1,4 @@
-name: Terraform_setup.yml
+name: 1.$(Rev:r)
 
 trigger: none
 
