@@ -53,7 +53,7 @@ stages:
                 docker build -t testing .
                 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_TESTING)
                 docker tag testing:$(Build.BuildNumber) $(ECR_URL_TESTING)
-                docker push $(ECR_URL_TESTING)
+                docker push $(ECR_URL_TESTING):$(Build.BuildNumber)
                 docker tag testing:latest $(ECR_URL_TESTING)
                 docker push $(ECR_URL_TESTING)
     - task: Bash@3
@@ -71,3 +71,5 @@ stages:
         script: |
                 #! /bin/bash
                 az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch dev-test --output table
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(PAT)
