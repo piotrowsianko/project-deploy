@@ -1,7 +1,5 @@
-name: 1.$(Rev:r)
-
 trigger:
-- feature/*
+- feature*
 
 
 resources:
