@@ -1,16 +1,16 @@
-name: 1.$(Rev:r)
+Name: 1.$(Rev:r)
 trigger:
-- none
+- master
 
 
 resources:
 - repo: self
 
 stages:
-- stage: Build_infrastracture
+- stage: Deploy to prod
   jobs:
   - job: Build
-    displayName: Download application from testing ECR and deploy to test EKS and perform tests
+    displayName: Get app image from ECR
     pool: 
       vmImage: ubuntu-latest
     variables:
@@ -34,18 +34,11 @@ stages:
                 aws configure set default.region us-east-1
 
     - task: Bash@3
-      displayName: Push application image to ECR
+      displayName: Login to EKS and get app image rolling 
       inputs:
         targetType: 'inline'
         script: |
-                #! /bin/bash
-                export db_username=$(db-username-test)
-                export db_password=$(db-password-test)
-                export db_endpoint=$(db-testing-endpoint)
-                aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
-                aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
-                aws configure set default.region us-east-1
-                aws eks --region us-east-1 update-kubeconfig --name testing
+                aws eks --region us-east-1 update-kubeconfig --name production
                 cat << EOF > kube.yml
                 ---
                 apiVersion: v1
@@ -57,12 +50,12 @@ stages:
                 spec:
                   containers:
                   - name: website
-                    image: "$(ECR_URL_TESTING):latest"
+                    image: "$(ECR_URL_PRODUCTION):latest"
                 ---
                 apiVersion: v1
                 kind: Service
                 metadata:
-                  name: testenv-deploy
+                  name: production-deploy
                 spec:
                   type: LoadBalancer
                   selector:
@@ -72,22 +65,4 @@ stages:
                     port: 80
                 EOF
                 kubectl apply -f kube.yml
-                export LB_URL=$(kubectl describe services testenv-deploy | grep --text ".amazonaws.com$")
-    - task: Bash@3
-      displayName: Integration tests placeholder
-      inputs: 
-        targetType: 'inline'
-        script: |
-                #! /bin/bash
-                curl LB_URL/root
-
-    - task: Bash@3
-      displayName: Opening Pull request to dev branch
-      inputs: 
-        targetType: 'inline'
-        script: |
-                #! /bin/bash
-                az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch dev-test --output table --auto-complete true
-                echo 'Pull request created!'
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(PAT)
+                              
