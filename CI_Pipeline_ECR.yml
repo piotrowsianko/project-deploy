@@ -10,7 +10,7 @@ stages:
 - stage: Build_infrastracture
   jobs:
   - job: Build
-    displayName: Initialize AWS infrastracture with terraform scripts
+    displayName: Build, test and push app image to ECR-testing
     pool: 
       vmImage: ubuntu-latest
     variables:
