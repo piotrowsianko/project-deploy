@@ -72,7 +72,7 @@ stages:
                     port: 80
                 EOF
                 kubectl apply -f kube.yml
-                export LB_URL=$(kubectl describe services testenv-deploy | grep --text ".amazonaws.com$")
+                export LB_URL=$(kubectl get services production-deploy -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
     - task: Bash@3
       displayName: Integration tests placeholder
       inputs: 
@@ -82,12 +82,47 @@ stages:
                 curl LB_URL/root
 
     - task: Bash@3
-      displayName: Opening Pull request to dev branch
+      displayName: Documentation tests placeholder
       inputs: 
         targetType: 'inline'
         script: |
                 #! /bin/bash
-                az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch dev-test --output table --auto-complete true
+                echo 'Documentation generated'
+
+    - task: Bash@3
+      displayName: Push images to ECR and Docker
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
+                docker tag testing $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
+                docker push $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
+                docker tag testing $(ECR_URL_PRODUCTION):latest 
+                docker push $(ECR_URL_PRODUCTION):latest
+                docker login -u piotrowsianko -p $(docker-PAT)
+                docker tag piotrowsianko/project:latest
+                docker push piotrowsianko/project:latest
+                docker tag piotrowsianko/project:$(Build.BuildNumber)
+                docker push piotrowsianko/project:$(Build.BuildNumber)
+
+    - task: Bash@3
+      displayName: Artifacts push placeholder
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                echo 'Artifacts generated and sent to Azure'
+
+
+    - task: Bash@3
+      displayName: Opening Pull request to production
+      condition: sucess()
+      inputs: 
+        targetType: 'inline'
+        script: |
+                #! /bin/bash
+                az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch master --output table --auto-complete true
                 echo 'Pull request created!'
       env:
         AZURE_DEVOPS_EXT_PAT: $(PAT)

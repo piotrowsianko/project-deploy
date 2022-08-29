@@ -183,6 +183,7 @@ stages:
 
 
 - stage: Dump_DB
+  dependsOn: Build_infrastracture
   jobs:
   - job: Build
     displayName: Dump data to DB
