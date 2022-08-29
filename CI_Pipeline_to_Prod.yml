@@ -1,6 +1,6 @@
 name: 1.$(Rev:r)
 trigger:
-- dev-test
+- feature*
 
 
 resources:
