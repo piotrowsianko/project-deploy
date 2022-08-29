@@ -180,6 +180,8 @@ stages:
               port: 80
           EOF
           kubectl apply -f kube.yml
+          az pipelines variable-group variable update --group-id 1 --name LB_PROD_URL --value $(kubectl get services testing-deploy -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+          echo $(LB_PROD_URL)
 
 
 - stage: Dump_DB

@@ -62,7 +62,7 @@ stages:
                 apiVersion: v1
                 kind: Service
                 metadata:
-                  name: testenv-deploy
+                  name: testing-deploy
                 spec:
                   type: LoadBalancer
                   selector:
@@ -73,6 +73,7 @@ stages:
                 EOF
                 kubectl apply -f kube.yml
                 az pipelines variable-group variable update --group-id 1 --name LB_TEST_URL --value $(kubectl get services testing-deploy -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+                echo $(LB_TEST_URL)
       env:
         AZURE_DEVOPS_EXT_PAT: $(PAT)
 
