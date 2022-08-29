@@ -83,7 +83,7 @@ stages:
         targetType: 'inline'
         script: |
                 #! /bin/bash
-                curl $(LB_URL)
+                curl $(LB_TEST_URL)
 
     - task: Bash@3
       displayName: Documentation tests placeholder
