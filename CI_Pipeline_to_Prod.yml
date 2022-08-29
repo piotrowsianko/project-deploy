@@ -1,6 +1,6 @@
 name: 1.$(Rev:r)
 trigger:
-- none
+- dev-branch
 
 
 resources:
