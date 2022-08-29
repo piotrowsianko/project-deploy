@@ -7,7 +7,7 @@ resources:
 - repo: self
 
 stages:
-- stage: Build_infrastracture
+- stage: Tests_and_push
   jobs:
   - job: Build
     displayName: Download application from testing ECR and deploy to test EKS and perform tests
@@ -114,10 +114,22 @@ stages:
                 #! /bin/bash
                 echo 'Artifacts generated and sent to Azure'
 
-
+- stage: Create_PR_to_Prod
+  dependsOn: Tests_and_push
+  jobs:
+  - job: Build
+    displayName: Open PR to Prod Branch
+    pool: 
+      #name: Default
+      #demands: agent.os -equals Linux
+      vmImage: ubuntu-latest
+    variables:
+    - group: "ACCESS-VARIABLES"
+    steps:
+    - checkout: self
+    tasks:
     - task: Bash@3
       displayName: Opening Pull request to production
-      condition: success()
       inputs: 
         targetType: 'inline'
         script: |
