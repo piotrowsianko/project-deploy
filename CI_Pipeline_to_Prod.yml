@@ -72,14 +72,17 @@ stages:
                     port: 80
                 EOF
                 kubectl apply -f kube.yml
-                export LB_URL=$(kubectl get services production-deploy -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+                az pipelines variable-group variable update --group-id 1 --name LB_TEST_URL --value $(kubectl get services production-deploy -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(PAT)
+        
     - task: Bash@3
       displayName: Integration tests placeholder
       inputs: 
         targetType: 'inline'
         script: |
                 #! /bin/bash
-                curl LB_URL/root
+                curl $(LB_URL)/root
 
     - task: Bash@3
       displayName: Documentation tests placeholder
