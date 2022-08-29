@@ -49,6 +49,15 @@ stages:
                 export db_username=$(db-username-test)
                 export db_password=$(db-password-test)
                 export db_endpoint=$(db-testing-endpoint)
+                cat << EOF > app/data.py
+                url = "postgresql+psycopg2://\
+                $(db_username)\
+                :\
+                $(db_password)\
+                @\
+                $(db_endpoint)\
+                /postgres" 
+                EOF
                 docker build -t testing .
                 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_TESTING)
                 docker tag testing $(ECR_URL_TESTING):$(Build.BuildNumber)

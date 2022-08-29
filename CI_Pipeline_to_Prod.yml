@@ -39,9 +39,6 @@ stages:
         targetType: 'inline'
         script: |
                 #! /bin/bash
-                export db_username=$(db-username-test)
-                export db_password=$(db-password-test)
-                export db_endpoint=$(db-testing-endpoint)
                 aws configure set aws_access_key_id $(AWS-ACCESS-KEY-ID)
                 aws configure set aws_secret_access_key $(AWS-SECRET-ACCESS-KEY)
                 aws configure set default.region us-east-1
@@ -94,11 +91,23 @@ stages:
                 echo 'Documentation generated'
 
     - task: Bash@3
-      displayName: Push images to ECR and Docker
+      displayName: Push images to ECR and Docker with updated DB endpoint
       inputs: 
         targetType: 'inline'
         script: |
                 #! /bin/bash
+                export db_username=$(db-username-test)
+                export db_password=$(db-password-test)
+                export db_endpoint=$(db-endpoint)
+                cat << EOF > app/data.py
+                url = "postgresql+psycopg2://\
+                $(db_username)\
+                :\
+                $(db_password)\
+                @\
+                $(db_endpoint)\
+                /postgres" 
+                EOF
                 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_PRODUCTION)
                 docker build -t production .
                 docker tag production $(ECR_URL_PRODUCTION):$(Build.BuildNumber)
