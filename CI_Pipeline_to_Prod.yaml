@@ -117,7 +117,7 @@ stages:
 
     - task: Bash@3
       displayName: Opening Pull request to production
-      condition: sucess()
+      condition: success()
       inputs: 
         targetType: 'inline'
         script: |
