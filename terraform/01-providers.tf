@@ -13,6 +13,14 @@ terraform {
 			source = "hashicorp/kubernetes"
 			version = "2.12.1"	
 		}
+		null = {
+			source  = "hashicorp/null"
+			version = "3.1.1"
+		}
+		tls = {
+			source  = "hashicorp/tls"
+			version = "3.4.0"
+		}
 	}
 }
 provider "aws" {

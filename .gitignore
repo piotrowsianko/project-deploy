@@ -1,1 +1,6 @@
-terraform.tfstate
+app/venv
+*.terraform
+*terraform.tfstate
+*terraform.tfstate.backup
+*terraform.*
+terraform/.terraform*
