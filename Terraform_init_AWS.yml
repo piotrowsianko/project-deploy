@@ -217,5 +217,5 @@ stages:
           export db_test_username=$(db-username-test)
           export db_test_password=$(db-password-test)
           export db_test_endpoint=$(db-testing-endpoint)
-          pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres database.sql
-          pg_restore -d postgresql://$(db-username):$(db-password)@$(db-endpoint)/postgres database.sql
+          pg_restore -d postgresql://$(db_test_username):$(db-password)@$(db-endpoint)/postgres database.sql
+          pg_restore -d postgresql://$(db-username):$(db_test_password)@$(db_test_endpoint)/postgres database.sql
