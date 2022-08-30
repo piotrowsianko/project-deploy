@@ -1,6 +1,6 @@
 terraform {
 	backend "s3" {
-		bucket = "gl-piotrowsianko-projectapp-2"
+		bucket = "gl-piotrowsianko-projectapp"
 		key = "production/terraform.tfstate"
 		region = "us-east-1"
 	}
