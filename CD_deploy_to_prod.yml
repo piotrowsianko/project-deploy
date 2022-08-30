@@ -1,4 +1,4 @@
-Name: 1.$(Rev:r)
+name: 1.$(Rev:r)
 trigger:
 - master
 
