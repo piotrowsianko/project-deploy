@@ -15,10 +15,10 @@ shop = FastAPI()  # Application named Shop created with FastAPI
 
 
 
-# Main page of the web server
+# Main page of the web server 
 @shop.get("/")
 async def root():
-    return{"Welcome to the shop": "!"}
+    return{"Welcome to the shop fellas": "!"}
 
 # Main page of the web server
 @shop.get("/root")
