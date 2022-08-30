@@ -7,7 +7,7 @@ resources:
 - repo: self
 
 stages:
-- stage: Deploy_to_prod
+- stage: Deploy_to_prod_env
   jobs:
   - job: Build
     displayName: Get app image from ECR
