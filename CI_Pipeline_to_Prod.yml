@@ -162,7 +162,7 @@ stages:
         targetType: 'inline'
         script: |
                 #! /bin/bash
-                az repos pr create --repository Project-GL --source-branch $(Build.SourceBranchName) --target-branch dev-test --output table --auto-complete true
+                az repos pr create --repository Project-GL --source-branch dev-test --target-branch master --output table --auto-complete true
                 echo 'Pull request created!'
       env:
         AZURE_DEVOPS_EXT_PAT: $(PAT)
